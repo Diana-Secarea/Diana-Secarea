@@ -108,3 +108,122 @@ public class UDPClient {
 
         return jsonArray;
     }
+
+✅ TCP File Transfer Example
+Why TCP?
+TCP is reliable and ensures ordered delivery, which makes it ideal for file transfer.
+
+📤 TCP File Sender (Client)
+java
+Copy
+Edit
+import java.io.*;
+import java.net.Socket;
+
+public class TCPFileSender {
+    public static void main(String[] args) throws Exception {
+        File file = new File("example.txt");
+        Socket socket = new Socket("localhost", 9000);
+
+        byte[] fileBytes = new byte[(int) file.length()];
+        FileInputStream fis = new FileInputStream(file);
+        BufferedInputStream bis = new BufferedInputStream(fis);
+        bis.read(fileBytes, 0, fileBytes.length);
+
+        OutputStream os = socket.getOutputStream();
+        os.write(fileBytes, 0, fileBytes.length);
+        os.flush();
+
+        bis.close();
+        socket.close();
+        System.out.println("File sent.");
+    }
+}
+📥 TCP File Receiver (Server)
+java
+Copy
+Edit
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class TCPFileReceiver {
+    public static void main(String[] args) throws Exception {
+        ServerSocket serverSocket = new ServerSocket(9000);
+        Socket socket = serverSocket.accept();
+        System.out.println("Connected.");
+
+        byte[] buffer = new byte[4096];
+        InputStream is = socket.getInputStream();
+        FileOutputStream fos = new FileOutputStream("received_tcp.txt");
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+        int bytesRead;
+        while ((bytesRead = is.read(buffer)) != -1) {
+            bos.write(buffer, 0, bytesRead);
+        }
+
+        bos.close();
+        socket.close();
+        serverSocket.close();
+        System.out.println("File received.");
+    }
+}
+
+
+📤 UDP File Sender (Client)
+java
+Copy
+Edit
+import java.io.*;
+import java.net.*;
+
+public class UDPFileSender {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket socket = new DatagramSocket();
+        InetAddress address = InetAddress.getByName("localhost");
+        File file = new File("example.txt");
+        FileInputStream fis = new FileInputStream(file);
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            DatagramPacket packet = new DatagramPacket(buffer, bytesRead, address, 9999);
+            socket.send(packet);
+            Thread.sleep(10); // to reduce risk of packet loss
+        }
+
+        // Send an empty packet as EOF signal
+        socket.send(new DatagramPacket(new byte[0], 0, address, 9999));
+
+        fis.close();
+        socket.close();
+        System.out.println("File sent via UDP.");
+    }
+}
+📥 UDP File Receiver (Server)
+java
+Copy
+Edit
+import java.io.*;
+import java.net.*;
+
+public class UDPFileReceiver {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket socket = new DatagramSocket(9999);
+        byte[] buffer = new byte[1024];
+        FileOutputStream fos = new FileOutputStream("received_udp.txt");
+
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            socket.receive(packet);
+
+            if (packet.getLength() == 0) break; // EOF signal
+            fos.write(packet.getData(), 0, packet.getLength());
+        }
+
+        fos.close();
+        socket.close();
+        System.out.println("File received via UDP.");
+    }
+}
