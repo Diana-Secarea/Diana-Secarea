@@ -1,6 +1,6 @@
-I FUCKING LOVE AI & ML :) 
+I FUCKING LOVE AI & ML :)  ❤️❤️❤️
 
-Artificial Intelligence & Machine Learning Engineer and LOVER ❤️❤️❤️
+Artificial Intelligence & Machine Learning Engineer and much more
 
 Appreciate me on LINKEDIN : https://www.linkedin.com/in/diana-m-44594a289/
 
